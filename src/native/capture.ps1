@@ -1,7 +1,9 @@
 $ErrorActionPreference = 'Stop'
 try {
+  [Console]::Error.WriteLine('MCP_CAPTURE_STAGE=assemblies')
   Add-Type -AssemblyName System.Drawing
   Add-Type -AssemblyName System.Windows.Forms
+  [Console]::Error.WriteLine('MCP_CAPTURE_STAGE=compiler')
   Add-Type @'
 using System;
 using System.Runtime.InteropServices;
@@ -11,7 +13,9 @@ public static class McpCapture {
  [DllImport("user32.dll")] public static extern bool PrintWindow(IntPtr hwnd, IntPtr hdc, uint flags);
 }
 '@
+  [Console]::Error.WriteLine('MCP_CAPTURE_STAGE=input')
   $request = [Console]::In.ReadLine() | ConvertFrom-Json
+  [Console]::Error.WriteLine('MCP_CAPTURE_STAGE=bounds')
   $bounds = [System.Windows.Forms.SystemInformation]::VirtualScreen
   $x = $bounds.X; $y = $bounds.Y; $width = $bounds.Width; $height = $bounds.Height
   if ($request.target -eq 'region') {
@@ -24,8 +28,10 @@ public static class McpCapture {
     $width = $rect.Right - $rect.Left; $height = $rect.Bottom - $rect.Top
   }
   if ($width -le 0 -or $height -le 0 -or ([long]$width * $height) -gt 32000000) { throw 'Image dimensions exceed limit' }
+  [Console]::Error.WriteLine('MCP_CAPTURE_STAGE=bitmap')
   $bitmap = New-Object System.Drawing.Bitmap($width, $height)
   try {
+    [Console]::Error.WriteLine('MCP_CAPTURE_STAGE=capture')
     $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
     try {
       if ($request.target -eq 'window') {
@@ -34,6 +40,7 @@ public static class McpCapture {
         finally { $graphics.ReleaseHdc($hdc) }
       } else { $graphics.CopyFromScreen($x, $y, 0, 0, $bitmap.Size) }
     } finally { $graphics.Dispose() }
+    [Console]::Error.WriteLine('MCP_CAPTURE_STAGE=encoding')
     $stream = New-Object System.IO.MemoryStream
     try {
       $bitmap.Save($stream, [System.Drawing.Imaging.ImageFormat]::Png)
@@ -41,6 +48,8 @@ public static class McpCapture {
       [Console]::Out.Write([Convert]::ToBase64String($stream.ToArray()))
     } finally { $stream.Dispose() }
   } finally { $bitmap.Dispose() }
+  [Console]::Error.WriteLine('MCP_CAPTURE_STAGE=complete')
+  exit 0
 } catch {
   [Console]::Error.WriteLine('Desktop screenshot failed.')
   exit 1

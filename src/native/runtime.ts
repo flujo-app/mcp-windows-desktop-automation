@@ -68,7 +68,8 @@ export class DesktopRuntime {
     return new Promise((resolve, reject) => {
       const id = ++this.nextId;
       this.pending = { id, resolve, reject };
-      this.child!.send({ id, method, args }, error => { if (error) this.stopWorker(); });
+      const child = this.child!;
+      child.send({ id, method, args }, error => { if (error && this.child === child) this.stopWorker(); });
     });
   }
   private stopWorker(): void {

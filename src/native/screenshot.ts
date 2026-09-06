@@ -26,8 +26,13 @@ export async function screenshot(input: z.output<z.ZodObject<typeof screenshotSh
   return new Promise<string>((resolve, reject) => {
     const child = spawn(path.join(process.env.SystemRoot ?? 'C:\\Windows', 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe'),
       ['-NoLogo', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', fileURLToPath(new URL('./capture.ps1', import.meta.url))],
-      { windowsHide: true, stdio: ['pipe','pipe','ignore'], env: Object.fromEntries(Object.entries(process.env).filter(([name]) => /^(SystemRoot|WINDIR|PATH|PATHEXT|TEMP|TMP|USERPROFILE|APPDATA|LOCALAPPDATA)$/i.test(name))) });
-    const chunks: Buffer[] = []; let size = 0; let done = false;
+      { windowsHide: true, stdio: ['pipe','pipe','pipe'], env: Object.fromEntries(Object.entries(process.env).filter(([name]) => /^(SystemRoot|WINDIR|PATH|PATHEXT|TEMP|TMP|USERPROFILE|APPDATA|LOCALAPPDATA)$/i.test(name))) });
+    const chunks: Buffer[] = []; let size = 0; let done = false; let stage = 'startup'; let diagnostic = '';
+    child.stderr.setEncoding('utf8');
+    child.stderr.on('data', (chunk: string) => {
+      diagnostic = (diagnostic + chunk).slice(-2048);
+      for (const match of diagnostic.matchAll(/MCP_CAPTURE_STAGE=(assemblies|compiler|input|bounds|bitmap|capture|encoding|complete)/g)) stage = match[1]!;
+    });
     const finish = (error?: NativeError) => {
       if (done) return; done = true;
       signal.removeEventListener('abort', abort); clearTimeout(timer);
@@ -38,7 +43,7 @@ export async function screenshot(input: z.output<z.ZodObject<typeof screenshotSh
         reject(new NativeError('Screenshot returned invalid or oversized PNG data.'));
       else resolve(encoded);
     };
-    const abort = () => finish(new NativeError('Screenshot cancelled or timed out.'));
+    const abort = () => finish(new NativeError('Screenshot cancelled or timed out during ' + stage + '.'));
     const timer = setTimeout(abort, 15000);
     signal.addEventListener('abort', abort, { once: true });
     child.stdout.on('data', (chunk: Buffer) => { size += chunk.length; if (size > 12 * 1024 * 1024) finish(new NativeError('Screenshot exceeds byte limit.')); else chunks.push(chunk); });
