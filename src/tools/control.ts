@@ -2,11 +2,11 @@
  * Control-related tools for MCP Windows Desktop Automation
  */
 
-import * as autoIt from 'node-autoit-koffi';
+import { autoIt } from '../native/runtime.js';
 import { z } from 'zod';
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { createToolResponse, createErrorResponse, schemas } from '../utils/types';
-import { log } from '../utils/logger/logger';
+import { ToolRegistry as McpServer } from '../server/tools.js';
+import { createToolResponse, createErrorResponse, schemas } from '../utils/types.js';
+import { log } from '../utils/logger/logger.js';
 
 /**
  * Register control-related tools with the MCP server
@@ -21,8 +21,8 @@ export function registerControlTools(server: McpServer): void {
       control: schemas.controlName,
       button: schemas.mouseButton,
       clicks: schemas.mouseClicks,
-      x: z.number().optional().describe('X coordinate within control'),
-      y: z.number().optional().describe('Y coordinate within control')
+      x: z.number().int().min(-2147483648).max(2147483647).optional().describe('X coordinate within control'),
+      y: z.number().int().min(-2147483648).max(2147483647).optional().describe('Y coordinate within control')
     },
     async ({ title, text, control, button, clicks, x, y }) => {
       try {
@@ -50,8 +50,8 @@ export function registerControlTools(server: McpServer): void {
       controlHandle: schemas.handle,
       button: schemas.mouseButton,
       clicks: schemas.mouseClicks,
-      x: z.number().optional().describe('X coordinate within control'),
-      y: z.number().optional().describe('Y coordinate within control')
+      x: z.number().int().min(-2147483648).max(2147483647).optional().describe('X coordinate within control'),
+      y: z.number().int().min(-2147483648).max(2147483647).optional().describe('Y coordinate within control')
     },
     async ({ windowHandle, controlHandle, button, clicks, x, y }) => {
       try {
@@ -78,8 +78,8 @@ export function registerControlTools(server: McpServer): void {
       title: schemas.windowTitle,
       text: schemas.windowText,
       control: schemas.controlName,
-      command: z.string().describe('Command to send'),
-      extra: z.string().optional().describe('Extra parameter for the command'),
+      command: z.string().max(65535).describe('Command to send'),
+      extra: z.string().max(65535).optional().describe('Extra parameter for the command'),
       bufSize: schemas.bufferSize
     },
     async ({ title, text, control, command, extra, bufSize }) => {
@@ -154,7 +154,7 @@ export function registerControlTools(server: McpServer): void {
       text: schemas.windowText,
       control: schemas.controlName,
       sendText: schemas.controlText,
-      mode: z.number().optional().describe('Send mode flag')
+      mode: z.number().int().min(-2147483648).max(2147483647).optional().describe('Send mode flag')
     },
     async ({ title, text, control, sendText, mode }) => {
       try {
@@ -254,10 +254,10 @@ export function registerControlTools(server: McpServer): void {
       title: schemas.windowTitle,
       text: schemas.windowText,
       control: schemas.controlName,
-      x: z.number().describe('X coordinate'),
-      y: z.number().describe('Y coordinate'),
-      width: z.number().optional().describe('Control width'),
-      height: z.number().optional().describe('Control height')
+      x: z.number().int().min(-2147483648).max(2147483647).describe('X coordinate'),
+      y: z.number().int().min(-2147483648).max(2147483647).describe('Y coordinate'),
+      width: z.number().int().min(-2147483648).max(2147483647).optional().describe('Control width'),
+      height: z.number().int().min(-2147483648).max(2147483647).optional().describe('Control height')
     },
     async ({ title, text, control, x, y, width, height }) => {
       try {

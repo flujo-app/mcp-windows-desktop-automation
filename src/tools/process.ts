@@ -2,11 +2,11 @@
  * Process-related tools for MCP Windows Desktop Automation
  */
 
-import * as autoIt from 'node-autoit-koffi';
+import { autoIt } from '../native/runtime.js';
 import { z } from 'zod';
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { createToolResponse, createErrorResponse, schemas } from '../utils/types';
-import { log } from '../utils/logger/logger';
+import { ToolRegistry as McpServer } from '../server/tools.js';
+import { createToolResponse, createErrorResponse, schemas } from '../utils/types.js';
+import { log } from '../utils/logger/logger.js';
 
 /**
  * Register process-related tools with the MCP server
@@ -16,9 +16,9 @@ export function registerProcessTools(server: McpServer): void {
   server.tool(
     'run',
     {
-      program: z.string().describe('Program path or command'),
-      workingDir: z.string().optional().describe('Working directory'),
-      showFlag: z.number().optional().describe('Window show flag')
+      program: z.string().max(65535).describe('Program path or command'),
+      workingDir: z.string().max(65535).optional().describe('Working directory'),
+      showFlag: z.number().int().min(-2147483648).max(2147483647).optional().describe('Window show flag')
     },
     async ({ program, workingDir, showFlag }) => {
       try {
@@ -37,9 +37,9 @@ export function registerProcessTools(server: McpServer): void {
   server.tool(
     'runWait',
     {
-      program: z.string().describe('Program path or command'),
-      workingDir: z.string().optional().describe('Working directory'),
-      showFlag: z.number().optional().describe('Window show flag')
+      program: z.string().max(65535).describe('Program path or command'),
+      workingDir: z.string().max(65535).optional().describe('Working directory'),
+      showFlag: z.number().int().min(-2147483648).max(2147483647).optional().describe('Window show flag')
     },
     async ({ program, workingDir, showFlag }) => {
       try {
@@ -58,13 +58,13 @@ export function registerProcessTools(server: McpServer): void {
   server.tool(
     'runAs',
     {
-      user: z.string().describe('Username'),
-      domain: z.string().describe('Domain'),
-      password: z.string().describe('Password'),
-      logonFlag: z.number().describe('Logon flag'),
-      program: z.string().describe('Program path or command'),
-      workingDir: z.string().optional().describe('Working directory'),
-      showFlag: z.number().optional().describe('Window show flag')
+      user: z.string().max(65535).describe('Username'),
+      domain: z.string().max(65535).describe('Domain'),
+      password: z.string().max(65535).describe('Password'),
+      logonFlag: z.number().int().min(-2147483648).max(2147483647).describe('Logon flag'),
+      program: z.string().max(65535).describe('Program path or command'),
+      workingDir: z.string().max(65535).optional().describe('Working directory'),
+      showFlag: z.number().int().min(-2147483648).max(2147483647).optional().describe('Window show flag')
     },
     async ({ user, domain, password, logonFlag, program, workingDir, showFlag }) => {
       try {
@@ -83,13 +83,13 @@ export function registerProcessTools(server: McpServer): void {
   server.tool(
     'runAsWait',
     {
-      user: z.string().describe('Username'),
-      domain: z.string().describe('Domain'),
-      password: z.string().describe('Password'),
-      logonFlag: z.number().describe('Logon flag'),
-      program: z.string().describe('Program path or command'),
-      workingDir: z.string().optional().describe('Working directory'),
-      showFlag: z.number().optional().describe('Window show flag')
+      user: z.string().max(65535).describe('Username'),
+      domain: z.string().max(65535).describe('Domain'),
+      password: z.string().max(65535).describe('Password'),
+      logonFlag: z.number().int().min(-2147483648).max(2147483647).describe('Logon flag'),
+      program: z.string().max(65535).describe('Program path or command'),
+      workingDir: z.string().max(65535).optional().describe('Working directory'),
+      showFlag: z.number().int().min(-2147483648).max(2147483647).optional().describe('Window show flag')
     },
     async ({ user, domain, password, logonFlag, program, workingDir, showFlag }) => {
       try {
@@ -157,7 +157,7 @@ export function registerProcessTools(server: McpServer): void {
     'processSetPriority',
     {
       process: schemas.processName,
-      priority: z.number().describe('Priority level (0-4)')
+      priority: z.number().int().min(-2147483648).max(2147483647).describe('Priority level (0-4)')
     },
     async ({ process, priority }) => {
       try {
@@ -231,7 +231,7 @@ export function registerProcessTools(server: McpServer): void {
   server.tool(
     'shutdown',
     {
-      flags: z.number().describe('Shutdown flags')
+      flags: z.number().int().min(-2147483648).max(2147483647).describe('Shutdown flags')
     },
     async ({ flags }) => {
       try {
