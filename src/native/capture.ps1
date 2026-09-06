@@ -11,7 +11,7 @@ public static class McpCapture {
  [DllImport("user32.dll")] public static extern bool PrintWindow(IntPtr hwnd, IntPtr hdc, uint flags);
 }
 '@
-  $request = [Console]::In.ReadToEnd() | ConvertFrom-Json
+  $request = [Console]::In.ReadLine() | ConvertFrom-Json
   $bounds = [System.Windows.Forms.SystemInformation]::VirtualScreen
   $x = $bounds.X; $y = $bounds.Y; $width = $bounds.Width; $height = $bounds.Height
   if ($request.target -eq 'region') {

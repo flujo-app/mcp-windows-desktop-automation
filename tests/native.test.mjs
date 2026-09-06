@@ -20,10 +20,11 @@ test('Actual Windows owned form: native FFI, Unicode, bounded text, PNG, cancell
     fixture.stdin.end(JSON.stringify({title,stopFile})+'\n');
     const runtime=new DesktopRuntime();
     t.after(async()=>{await runtime.close();await writeFile(stopFile,'stop');await bound(exited,5000).catch(()=>fixture.kill());await rm(temp,{recursive:true,force:true});});
-    await ready; assert.ok(controlHandle); const control='[HANDLE:0x'+controlHandle.toString(16)+']';
+    await ready; assert.ok(controlHandle); const control='[NAME:McpFixtureText]';
     const operation=fn=>runtime.run(AbortSignal.timeout(20000),fn);
     assert.equal(await operation(()=>autoIt.winExists(title)),1);
     assert.equal(await operation(()=>autoIt.winGetTitle(title)),title);
+    assert.equal(await operation(async()=>autoIt.controlGetHandle(await autoIt.winGetHandle(title),control)),controlHandle,'Resolve the owned WinForms control by its documented NAME selector');
     const text='Unicode fixture '+String.fromCodePoint(0x1f642)+' ä';
     assert.equal(await operation(()=>autoIt.controlSetText(title,'',control,text)),1);
     assert.equal(await operation(()=>autoIt.controlGetText(title,'',control)),text);

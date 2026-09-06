@@ -8,7 +8,7 @@ $form.Width = 340; $form.Height = 220
 $form.StartPosition = 'Manual'; $form.Location = New-Object System.Drawing.Point(20,20)
 $form.BackColor = [System.Drawing.Color]::CornflowerBlue
 $text = New-Object System.Windows.Forms.TextBox
-$text.Text = 'owned fixture'; $text.Location = New-Object System.Drawing.Point(20,20); $text.Width = 220
+$text.Name = 'McpFixtureText'; $text.Text = 'owned fixture'; $text.Location = New-Object System.Drawing.Point(20,20); $text.Width = 220
 $form.Controls.Add($text)
 $timer = New-Object System.Windows.Forms.Timer
 $timer.Interval = 100

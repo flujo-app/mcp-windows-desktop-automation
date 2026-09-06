@@ -26,7 +26,7 @@ export async function screenshot(input: z.output<z.ZodObject<typeof screenshotSh
   return new Promise<string>((resolve, reject) => {
     const child = spawn(path.join(process.env.SystemRoot ?? 'C:\\Windows', 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe'),
       ['-NoLogo', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', fileURLToPath(new URL('./capture.ps1', import.meta.url))],
-      { windowsHide: true, stdio: ['pipe','pipe','ignore'], env: { SystemRoot: process.env.SystemRoot, TEMP: process.env.TEMP, TMP: process.env.TMP } });
+      { windowsHide: true, stdio: ['pipe','pipe','ignore'], env: Object.fromEntries(Object.entries(process.env).filter(([name]) => /^(SystemRoot|WINDIR|PATH|PATHEXT|TEMP|TMP|USERPROFILE|APPDATA|LOCALAPPDATA)$/i.test(name))) });
     const chunks: Buffer[] = []; let size = 0; let done = false;
     const finish = (error?: NativeError) => {
       if (done) return; done = true;
@@ -45,6 +45,6 @@ export async function screenshot(input: z.output<z.ZodObject<typeof screenshotSh
     child.once('error', () => finish(new NativeError('Windows PowerShell screenshot helper unavailable.')));
     child.once('close', code => finish(code === 0 ? undefined : new NativeError('Screenshot failed; check the interactive desktop and window support.')));
     child.stdin.on('error', () => {});
-    child.stdin.end(JSON.stringify(request));
+    child.stdin.end(JSON.stringify(request) + '\n');
   });
 }
