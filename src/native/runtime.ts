@@ -47,7 +47,7 @@ export class DesktopRuntime {
       const child = spawn(process.execPath, ['--max-old-space-size=128', fileURLToPath(new URL('./worker.js', import.meta.url))], {
         stdio: ['ignore', 'ignore', 'ignore', 'ipc'], windowsHide: true,
         // Never pass the HTTP bearer token or unrelated process credentials to native code.
-        env: Object.fromEntries(Object.entries(process.env).filter(([name]) => /^(SystemRoot|WINDIR|PATH|PATHEXT|TEMP|TMP|USERPROFILE|APPDATA|LOCALAPPDATA)$/i.test(name)))
+        env: Object.fromEntries(Object.entries(process.env).filter(([name]) => /^(SystemRoot|SystemDrive|WINDIR|ComSpec|PATH|PATHEXT|TEMP|TMP|USERPROFILE|APPDATA|LOCALAPPDATA|ProgramFiles|ProgramFiles\(x86\)|ProgramW6432)$/i.test(name)))
       });
       this.child = child;
       child.on('message', (message: unknown) => {

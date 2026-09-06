@@ -13,14 +13,14 @@ test('Actual Windows owned form: native FFI, Unicode, bounded text, PNG, cancell
     assert.equal(process.arch,'x64');
     const temp=await mkdtemp(path.join(tmpdir(),'desktop-native-'));
     const title='MCP owned fixture '+Date.now(), stopFile=path.join(temp,'stop');
-    const fixture=spawn('powershell.exe',['-NoLogo','-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',path.resolve('tests/fixture.ps1')],{stdio:['pipe','pipe','pipe'],windowsHide:true});
-    let controlHandle; let stderr='';fixture.stderr.on('data',data=>stderr+=data);
+    const fixture=spawn('powershell.exe',['-NoLogo','-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',path.resolve('tests/fixture.ps1')],{stdio:['pipe','pipe','pipe'],windowsHide:false});
+    let controlHandle; let visible=false; let stderr='';fixture.stderr.on('data',data=>stderr+=data);
     const exited=new Promise(resolve=>fixture.once('close',resolve));
-    const ready=bound(new Promise((resolve,reject)=>{fixture.stdout.on('data',data=>{const match=/READY ([0-9]+)/.exec(data.toString());if(match){controlHandle=Number(match[1]);resolve();}});fixture.once('error',reject);fixture.once('exit',code=>reject(new Error('Fixture exited '+code+': '+stderr)));}),15000);
+    const ready=bound(new Promise((resolve,reject)=>{fixture.stdout.on('data',data=>{const match=/READY ([0-9]+)/.exec(data.toString());if(match){controlHandle=Number(match[1]);visible=data.toString().includes('VISIBLE=True');resolve();}});fixture.once('error',reject);fixture.once('exit',code=>reject(new Error('Fixture exited '+code+': '+stderr)));}),15000);
     fixture.stdin.end(JSON.stringify({title,stopFile})+'\n');
     const runtime=new DesktopRuntime();
     t.after(async()=>{await runtime.close();await writeFile(stopFile,'stop');await bound(exited,5000).catch(()=>fixture.kill());await rm(temp,{recursive:true,force:true});});
-    await ready; assert.ok(controlHandle); const control='[NAME:McpFixtureText]';
+    await ready; assert.ok(visible,'The owned native fixture must have WS_VISIBLE before capturing it'); assert.ok(controlHandle); const control='[NAME:McpFixtureText]';
     const operation=fn=>runtime.run(AbortSignal.timeout(20000),fn);
     assert.equal(await operation(()=>autoIt.winExists(title,undefined)),1);
     assert.equal(await operation(()=>autoIt.winGetTitle(title)),title);
