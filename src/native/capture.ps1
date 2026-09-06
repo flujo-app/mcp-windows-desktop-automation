@@ -1,10 +1,10 @@
 $ErrorActionPreference = 'Stop'
 try {
   [Console]::Error.WriteLine('MCP_CAPTURE_STAGE=assemblies')
-  Add-Type -AssemblyName System.Drawing
-  Add-Type -AssemblyName System.Windows.Forms
+  Microsoft.PowerShell.Utility\Add-Type -AssemblyName System.Drawing
+  Microsoft.PowerShell.Utility\Add-Type -AssemblyName System.Windows.Forms
   [Console]::Error.WriteLine('MCP_CAPTURE_STAGE=compiler')
-  Add-Type @'
+  Microsoft.PowerShell.Utility\Add-Type @'
 using System;
 using System.Runtime.InteropServices;
 public static class McpCapture {
@@ -14,7 +14,7 @@ public static class McpCapture {
 }
 '@
   [Console]::Error.WriteLine('MCP_CAPTURE_STAGE=input')
-  $request = [Console]::In.ReadLine() | ConvertFrom-Json
+  $request = [Console]::In.ReadLine() | Microsoft.PowerShell.Utility\ConvertFrom-Json
   [Console]::Error.WriteLine('MCP_CAPTURE_STAGE=bounds')
   $bounds = [System.Windows.Forms.SystemInformation]::VirtualScreen
   $x = $bounds.X; $y = $bounds.Y; $width = $bounds.Width; $height = $bounds.Height

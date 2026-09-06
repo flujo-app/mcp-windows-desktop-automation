@@ -26,7 +26,9 @@ export async function screenshot(input: z.output<z.ZodObject<typeof screenshotSh
   return new Promise<string>((resolve, reject) => {
     const child = spawn(path.join(process.env.SystemRoot ?? 'C:\\Windows', 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe'),
       ['-NoLogo', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', fileURLToPath(new URL('./capture.ps1', import.meta.url))],
-      { windowsHide: true, stdio: ['pipe','pipe','pipe'], env: Object.fromEntries(Object.entries(process.env).filter(([name]) => /^(SystemRoot|WINDIR|PATH|PATHEXT|TEMP|TMP|USERPROFILE|APPDATA|LOCALAPPDATA)$/i.test(name))) });
+      { windowsHide: true, stdio: ['pipe','pipe','pipe'], env: { ...Object.fromEntries(Object.entries(process.env).filter(([name]) => /^(SystemRoot|SystemDrive|WINDIR|ComSpec|PATH|PATHEXT|TEMP|TMP|USERPROFILE|APPDATA|LOCALAPPDATA|ProgramFiles|ProgramFiles\(x86\)|ProgramW6432)$/i.test(name))),
+        // Resolve only the built-in modules, without scanning machine/user module stores.
+        PSModulePath: path.join(process.env.SystemRoot ?? 'C:\\Windows', 'System32', 'WindowsPowerShell', 'v1.0', 'Modules') } });
     const chunks: Buffer[] = []; let size = 0; let done = false; let stage = 'startup'; let diagnostic = '';
     child.stderr.setEncoding('utf8');
     child.stderr.on('data', (chunk: string) => {
