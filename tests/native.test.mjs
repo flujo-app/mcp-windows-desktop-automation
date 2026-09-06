@@ -22,11 +22,11 @@ test('Actual Windows owned form: native FFI, Unicode, bounded text, PNG, cancell
     t.after(async()=>{await runtime.close();await writeFile(stopFile,'stop');await bound(exited,5000).catch(()=>fixture.kill());await rm(temp,{recursive:true,force:true});});
     await ready; assert.ok(controlHandle); const control='[NAME:McpFixtureText]';
     const operation=fn=>runtime.run(AbortSignal.timeout(20000),fn);
-    assert.equal(await operation(()=>autoIt.winExists(title)),1);
+    assert.equal(await operation(()=>autoIt.winExists(title,undefined)),1);
     assert.equal(await operation(()=>autoIt.winGetTitle(title)),title);
     assert.equal(await operation(async()=>autoIt.controlGetHandle(await autoIt.winGetHandle(title),control)),controlHandle,'Resolve the owned WinForms control by its documented NAME selector');
     const text='Unicode fixture '+String.fromCodePoint(0x1f642)+' ä';
-    assert.equal(await operation(()=>autoIt.controlSetText(title,'',control,text)),1);
+    assert.equal(await operation(()=>autoIt.controlSetText(title,undefined,control,text)),1);
     assert.equal(await operation(()=>autoIt.controlGetText(title,'',control)),text);
     await assert.rejects(()=>operation(()=>autoIt.controlGetText(title,'',control,4)),/failed/);
     const oldClipboard=await operation(()=>autoIt.clipGet());
@@ -52,7 +52,7 @@ test('Actual Windows owned form: native FFI, Unicode, bounded text, PNG, cancell
     const wait=runtime.run(controller.signal,()=>autoIt.processWait('MCP_missing_owned_test_82172.exe',25));
     await new Promise(resolve=>setTimeout(resolve,100));const pid=runtime.workerPid;assert.ok(pid);controller.abort();
     await assert.rejects(()=>wait,/cancelled/);
-    assert.equal(await operation(()=>autoIt.winExists(title)),1);
+    assert.equal(await operation(()=>autoIt.winExists(title,undefined)),1);
     const newPid=runtime.workerPid;assert.notEqual(newPid,pid);
     await runtime.close();
     await new Promise(resolve=>setTimeout(resolve,200));

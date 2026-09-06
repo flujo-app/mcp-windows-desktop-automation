@@ -76,7 +76,7 @@ export const schemas = {
   
   // Process parameters
   processName: z.string().max(65535).describe('Process name or executable path'),
-  processTimeout: z.number().min(0.1).max(25).default(10).describe('Timeout in seconds (0.1-25; default 10)'),
+  processTimeout: z.number().int().min(1).max(25).default(10).describe('Timeout in seconds (1-25; default 10)'),
   
   // Common parameters
   handle: z.number().int().min(-2147483648).max(2147483647).describe('Window or control handle'),

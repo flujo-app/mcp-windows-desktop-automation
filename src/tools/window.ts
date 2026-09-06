@@ -255,7 +255,7 @@ export function registerWindowTools(server: McpServer): void {
     {
       title: schemas.windowTitle,
       text: schemas.windowText,
-      timeout: z.number().min(0.1).max(25).default(10).describe('Timeout in seconds (0.1-25; default 10)')
+      timeout: z.number().int().min(1).max(25).default(10).describe('Timeout in seconds (1-25; default 10)')
     },
     async ({ title, text, timeout }) => {
       try {
@@ -281,7 +281,7 @@ export function registerWindowTools(server: McpServer): void {
     {
       title: schemas.windowTitle,
       text: schemas.windowText,
-      timeout: z.number().min(0.1).max(25).default(10).describe('Timeout in seconds (0.1-25; default 10)')
+      timeout: z.number().int().min(1).max(25).default(10).describe('Timeout in seconds (1-25; default 10)')
     },
     async ({ title, text, timeout }) => {
       try {
@@ -307,7 +307,7 @@ export function registerWindowTools(server: McpServer): void {
     {
       title: schemas.windowTitle,
       text: schemas.windowText,
-      timeout: z.number().min(0.1).max(25).default(10).describe('Timeout in seconds (0.1-25; default 10)')
+      timeout: z.number().int().min(1).max(25).default(10).describe('Timeout in seconds (1-25; default 10)')
     },
     async ({ title, text, timeout }) => {
       try {

@@ -35,7 +35,9 @@ process.on('message', async (message: { id: number; method: string; args: unknow
   try {
     await initialized;
     if (!allowed.has(message.method) || !Array.isArray(message.args)) throw new Error('Unsupported');
-    const value = await invoke(message.method, message.args);
+    // JSON IPC represents undefined array arguments as null; public schemas reject null.
+    // Restore optional arguments so the native wrapper applies its documented defaults.
+    const value = await invoke(message.method, message.args.map(value => value === null ? undefined : value));
     if (Buffer.byteLength(JSON.stringify(value ?? null)) > 512 * 1024) throw new Error('Output limit');
     process.send?.({ id: message.id, ok: true, value });
   } catch { process.send?.({ id: message.id, ok: false }); }

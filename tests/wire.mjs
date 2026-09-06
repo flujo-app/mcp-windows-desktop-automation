@@ -39,6 +39,7 @@ export async function proveWire(entry, modern, { executable = process.execPath, 
     const read=(await request(20,'resources/read',{uri:pathToFileURL(file).href}));
     assert.ok(read.result,JSON.stringify(read));
     assert.equal(Buffer.from(read.result.contents[0].blob,'base64').toString(),'PRIVATE_FILE_MARKER');
+    assert.equal((await request(21,'tools/call',{name:'processWait',arguments:{process:'fixture',timeout:0.1}})).result.isError,true);
     const result = (await request(16,'tools/call',{name:'mouseGetPos',arguments:{}})).result;
     if (process.platform === 'win32') { assert.notEqual(result.isError,true,JSON.stringify(result)); assert.match(result.content[0].text,/position/i); }
     else { assert.equal(result.isError,true); assert.match(result.content[0].text,/Windows x64/); }

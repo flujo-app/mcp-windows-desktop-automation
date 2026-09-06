@@ -46,7 +46,7 @@ HTTP supports current Streamable HTTP and deliberate stateless legacy requests. 
 
 Prompts: findWindow, windowInfo, fillForm, submitForm, automateTask, monitorWindow, takeScreenshot.
 
-The existing AutoIt argument conventions remain. Strings and integers now have explicit limits. Wait timeouts are **seconds**, default 10 and range 0.1–25; the old process-timeout description incorrectly said milliseconds. Click counts are capped at 100. Text getters use a fixed UTF-16 buffer (default/max 65,536 code units); an undersized buffer reports an error instead of silently truncating or allocating indefinitely.
+The existing AutoIt argument conventions remain. Strings and integers now have explicit limits. Wait timeouts are **seconds**, default 10 and range 1–25; the old process-timeout description incorrectly said milliseconds. Click counts are capped at 100. Text getters use a fixed UTF-16 buffer (default/max 65,536 code units); an undersized buffer reports an error instead of silently truncating or allocating indefinitely.
 
 ## Actual screenshots and file resources
 
