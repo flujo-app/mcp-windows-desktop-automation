@@ -29,14 +29,14 @@ public static class McpCapture {
   }
   if ($width -le 0 -or $height -le 0 -or ([long]$width * $height) -gt 32000000) { throw 'Image dimensions exceed limit' }
   [Console]::Error.WriteLine('MCP_CAPTURE_STAGE=bitmap')
-  $bitmap = New-Object System.Drawing.Bitmap($width, $height)
+  $bitmap = [System.Drawing.Bitmap]::new($width, $height, [System.Drawing.Imaging.PixelFormat]::Format32bppRgb)
   try {
     [Console]::Error.WriteLine('MCP_CAPTURE_STAGE=capture')
     $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
     try {
       if ($request.target -eq 'window') {
         $hdc = $graphics.GetHdc()
-        try { if (-not [McpCapture]::PrintWindow([IntPtr][long]$request.handle, $hdc, 2)) { throw 'Window capture unavailable' } }
+        try { if (-not [McpCapture]::PrintWindow([IntPtr][long]$request.handle, $hdc, 0)) { throw 'Window capture unavailable' } }
         finally { $graphics.ReleaseHdc($hdc) }
       } else { $graphics.CopyFromScreen($x, $y, 0, 0, $bitmap.Size) }
     } finally { $graphics.Dispose() }

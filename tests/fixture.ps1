@@ -6,6 +6,7 @@ $form = New-Object System.Windows.Forms.Form
 $form.Text = $request.title
 $form.Width = 340; $form.Height = 220
 $form.StartPosition = 'Manual'; $form.Location = New-Object System.Drawing.Point(20,20)
+$form.TopMost = $true
 $form.BackColor = [System.Drawing.Color]::CornflowerBlue
 $text = New-Object System.Windows.Forms.TextBox
 $text.Name = 'McpFixtureText'; $text.Text = 'owned fixture'; $text.Location = New-Object System.Drawing.Point(20,20); $text.Width = 220

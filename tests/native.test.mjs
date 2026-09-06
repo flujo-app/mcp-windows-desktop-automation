@@ -32,15 +32,20 @@ test('Actual Windows owned form: native FFI, Unicode, bounded text, PNG, cancell
     const oldClipboard=await operation(()=>autoIt.clipGet());
     try {await operation(()=>autoIt.clipPut(text));assert.equal(await operation(()=>autoIt.clipGet()),text);}
     finally {await operation(()=>autoIt.clipPut(oldClipboard));}
+    const position=await operation(()=>autoIt.winGetPos(title));
     for(const target of ['window','region']) {
-      const encoded=await operation(()=>screenshot(target==='window'?{target,windowTitle:title}:{target,x:20,y:20,width:100,height:80}));
+      const encoded=await operation(()=>screenshot(target==='window'?{target,windowTitle:title}:{target,x:position.left+40,y:position.top+100,width:100,height:60}));
       const png=Buffer.from(encoded,'base64');
       assert.deepEqual([...png.subarray(0,8)],[137,80,78,71,13,10,26,10]);
       assert.ok(png.length>100);
-      const decoded=PNG.sync.read(png); let blue=0;
-      for(let i=0;i<decoded.data.length;i+=4) if(decoded.data[i]===100 && decoded.data[i+1]===149 && decoded.data[i+2]===237) blue++;
-      assert.ok(blue>100,'Captured actual owned CornflowerBlue form pixels');
-      if(target==='region'){assert.equal(png.readUInt32BE(16),100);assert.equal(png.readUInt32BE(20),80);}
+      const decoded=PNG.sync.read(png); let blue=0; const colors=new Map();
+      for(let i=0;i<decoded.data.length;i+=4) {
+        const rgb=[...decoded.data.subarray(i,i+3)]; const key=rgb.join(','); colors.set(key,(colors.get(key)??0)+1);
+        // Remote Windows displays may quantize the known fixture color to 16-bit RGB.
+        if(Math.abs(rgb[0]-100)<=8 && Math.abs(rgb[1]-149)<=8 && Math.abs(rgb[2]-237)<=8) blue++;
+      }
+      assert.ok(blue>100,'Captured owned '+target+' CornflowerBlue pixels; dominant fixture colors '+JSON.stringify([...colors].sort((a,b)=>b[1]-a[1]).slice(0,5)));
+      if(target==='region'){assert.equal(png.readUInt32BE(16),100);assert.equal(png.readUInt32BE(20),60);}
       else {assert.ok(png.readUInt32BE(16)>=300);assert.ok(png.readUInt32BE(20)>=180);}
     }
     const controller=new AbortController();
