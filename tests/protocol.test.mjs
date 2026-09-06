@@ -92,3 +92,14 @@ test('HTTP deadline and client disconnect release the shared desktop queue', {ti
   const healthy=await httpCall(port,{...body,id:2,params:{name:'mouseGetPos',arguments:{},_meta:meta}});
   assert.notEqual(result(healthy).result.isError,true);
 });
+
+test('Known native failure results become MCP tool errors without exposing credentials', async t => {
+ const runtime=new DesktopRuntime(async()=>0);
+ const server=new DesktopServer({transport:'streamable-http',port:0,authToken:'x'.repeat(40),fileRoots:[process.cwd()],runtime});
+ await server.start();t.after(()=>server.stop());
+ const meta={'io.modelcontextprotocol/protocolVersion':'2026-07-28','io.modelcontextprotocol/clientCapabilities':{}};
+ for(const [name,args] of [['controlSetText',{title:'owned',control:'missing',controlText:'text'}],['run',{program:'missing'}],['processWait',{process:'missing'}]]) {
+  const response=await httpCall(server.getHttpPort(),{jsonrpc:'2.0',id:1,method:'tools/call',params:{name,arguments:args,_meta:meta}});
+  assert.equal(result(response).result.isError,true,name);
+ }
+});

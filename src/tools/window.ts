@@ -266,7 +266,7 @@ export function registerWindowTools(server: McpServer): void {
         return createToolResponse(
           success
             ? `Window "${title}" appeared within the timeout`
-            : `Window "${title}" did not appear within the timeout`
+            : `Window "${title}" did not appear within the timeout`, !success
         );
       } catch (error) {
         log.error('winWait failed', error);
@@ -292,7 +292,7 @@ export function registerWindowTools(server: McpServer): void {
         return createToolResponse(
           success
             ? `Window "${title}" became active within the timeout`
-            : `Window "${title}" did not become active within the timeout`
+            : `Window "${title}" did not become active within the timeout`, !success
         );
       } catch (error) {
         log.error('winWaitActive failed', error);
@@ -318,7 +318,7 @@ export function registerWindowTools(server: McpServer): void {
         return createToolResponse(
           success
             ? `Window "${title}" closed within the timeout`
-            : `Window "${title}" did not close within the timeout`
+            : `Window "${title}" did not close within the timeout`, !success
         );
       } catch (error) {
         log.error('winWaitClose failed', error);

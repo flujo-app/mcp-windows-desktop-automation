@@ -25,7 +25,7 @@ export function registerProcessTools(server: McpServer): void {
         log.verbose('run called', { program, workingDir, showFlag });
         await autoIt.init();
         const result = await autoIt.run(program, workingDir, showFlag);
-        return createToolResponse(`Program "${program}" started with process ID: ${result}`);
+        return createToolResponse(result ? `Program "${program}" started with process ID: ${result}` : 'Program failed to start.', !result);
       } catch (error) {
         log.error('run failed', error);
         return createErrorResponse(error instanceof Error ? error : String(error));
@@ -118,7 +118,7 @@ export function registerProcessTools(server: McpServer): void {
         const exists = result !== 0;
         return createToolResponse(
           exists
-            ? `Process "${process}" exists with PID: ${result}`
+            ? `Process "${process}" exists`
             : `Process "${process}" does not exist`
         );
       } catch (error) {
@@ -143,7 +143,7 @@ export function registerProcessTools(server: McpServer): void {
         return createToolResponse(
           success
             ? `Process "${process}" closed successfully`
-            : `Failed to close process "${process}"`
+            : `Failed to close process "${process}"`, !success
         );
       } catch (error) {
         log.error('processClose failed', error);
@@ -168,7 +168,7 @@ export function registerProcessTools(server: McpServer): void {
         return createToolResponse(
           success
             ? `Priority for process "${process}" set to ${priority}`
-            : `Failed to set priority for process "${process}"`
+            : `Failed to set priority for process "${process}"`, !success
         );
       } catch (error) {
         log.error('processSetPriority failed', error);
@@ -192,8 +192,8 @@ export function registerProcessTools(server: McpServer): void {
         const success = result !== 0;
         return createToolResponse(
           success
-            ? `Process "${process}" exists with PID: ${result}`
-            : `Timed out waiting for process "${process}"`
+            ? `Process "${process}" exists`
+            : `Timed out waiting for process "${process}"`, !success
         );
       } catch (error) {
         log.error('processWait failed', error);
@@ -218,7 +218,7 @@ export function registerProcessTools(server: McpServer): void {
         return createToolResponse(
           success
             ? `Process "${process}" closed within the timeout`
-            : `Timed out waiting for process "${process}" to close`
+            : `Timed out waiting for process "${process}" to close`, !success
         );
       } catch (error) {
         log.error('processWaitClose failed', error);
@@ -242,7 +242,7 @@ export function registerProcessTools(server: McpServer): void {
         return createToolResponse(
           success
             ? `System shutdown initiated with flags: ${flags}`
-            : `Failed to initiate system shutdown`
+            : `Failed to initiate system shutdown`, !success
         );
       } catch (error) {
         log.error('shutdown failed', error);

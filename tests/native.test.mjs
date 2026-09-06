@@ -14,20 +14,20 @@ test('Actual Windows owned form: native FFI, Unicode, bounded text, PNG, cancell
     const temp=await mkdtemp(path.join(tmpdir(),'desktop-native-'));
     const title='MCP owned fixture '+Date.now(), stopFile=path.join(temp,'stop');
     const fixture=spawn('powershell.exe',['-NoLogo','-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',path.resolve('tests/fixture.ps1')],{stdio:['pipe','pipe','pipe'],windowsHide:true});
-    let stderr='';fixture.stderr.on('data',data=>stderr+=data);
+    let controlHandle; let stderr='';fixture.stderr.on('data',data=>stderr+=data);
     const exited=new Promise(resolve=>fixture.once('close',resolve));
-    const ready=bound(new Promise((resolve,reject)=>{fixture.stdout.on('data',data=>{if(data.toString().includes('READY'))resolve();});fixture.once('error',reject);fixture.once('exit',code=>reject(new Error('Fixture exited '+code+': '+stderr)));}),15000);
+    const ready=bound(new Promise((resolve,reject)=>{fixture.stdout.on('data',data=>{const match=/READY ([0-9]+)/.exec(data.toString());if(match){controlHandle=Number(match[1]);resolve();}});fixture.once('error',reject);fixture.once('exit',code=>reject(new Error('Fixture exited '+code+': '+stderr)));}),15000);
     fixture.stdin.end(JSON.stringify({title,stopFile})+'\n');
     const runtime=new DesktopRuntime();
     t.after(async()=>{await runtime.close();await writeFile(stopFile,'stop');await bound(exited,5000).catch(()=>fixture.kill());await rm(temp,{recursive:true,force:true});});
-    await ready;
+    await ready; assert.ok(controlHandle); const control='[HANDLE:0x'+controlHandle.toString(16)+']';
     const operation=fn=>runtime.run(AbortSignal.timeout(20000),fn);
     assert.equal(await operation(()=>autoIt.winExists(title)),1);
     assert.equal(await operation(()=>autoIt.winGetTitle(title)),title);
     const text='Unicode fixture '+String.fromCodePoint(0x1f642)+' ä';
-    assert.equal(await operation(()=>autoIt.controlSetText(title,'','Edit1',text)),1);
-    assert.equal(await operation(()=>autoIt.controlGetText(title,'','Edit1')),text);
-    await assert.rejects(()=>operation(()=>autoIt.controlGetText(title,'','Edit1',4)),/failed/);
+    assert.equal(await operation(()=>autoIt.controlSetText(title,'',control,text)),1);
+    assert.equal(await operation(()=>autoIt.controlGetText(title,'',control)),text);
+    await assert.rejects(()=>operation(()=>autoIt.controlGetText(title,'',control,4)),/failed/);
     const oldClipboard=await operation(()=>autoIt.clipGet());
     try {await operation(()=>autoIt.clipPut(text));assert.equal(await operation(()=>autoIt.clipGet()),text);}
     finally {await operation(()=>autoIt.clipPut(oldClipboard));}

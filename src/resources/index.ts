@@ -22,7 +22,12 @@ export async function readFileResource(uri: URL, roots: readonly string[]): Prom
   const handle = await open(file, 'r');
   try {
     const buffer = Buffer.alloc(MAX_FILE + 1);
-    const { bytesRead } = await handle.read(buffer, 0, buffer.length, 0);
+    let bytesRead = 0;
+    while (bytesRead < buffer.length) {
+      const read = await handle.read(buffer, bytesRead, buffer.length - bytesRead, bytesRead);
+      if (!read.bytesRead) break;
+      bytesRead += read.bytesRead;
+    }
     if (bytesRead > MAX_FILE) throw new NativeError('File exceeds 1 MiB.');
     return { uri: uri.href, mimeType: 'application/octet-stream', blob: buffer.subarray(0, bytesRead).toString('base64') };
   } finally { await handle.close(); }

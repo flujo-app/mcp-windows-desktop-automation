@@ -33,7 +33,7 @@ export function registerControlTools(server: McpServer): void {
         return createToolResponse(
           success
             ? `Clicked on control "${control}" in window "${title}"`
-            : `Failed to click on control "${control}" in window "${title}"`
+            : `Failed to click on control "${control}" in window "${title}"`, !success
         );
       } catch (error) {
         log.error('controlClick failed', error);
@@ -62,7 +62,7 @@ export function registerControlTools(server: McpServer): void {
         return createToolResponse(
           success
             ? `Clicked on control handle ${controlHandle} in window handle ${windowHandle}`
-            : `Failed to click on control handle ${controlHandle} in window handle ${windowHandle}`
+            : `Failed to click on control handle ${controlHandle} in window handle ${windowHandle}`, !success
         );
       } catch (error) {
         log.error('controlClickByHandle failed', error);
@@ -137,7 +137,7 @@ export function registerControlTools(server: McpServer): void {
         return createToolResponse(
           success
             ? `Text set in control "${control}" to "${controlText}"`
-            : `Failed to set text in control "${control}"`
+            : `Failed to set text in control "${control}"`, !success
         );
       } catch (error) {
         log.error('controlSetText failed', error);
@@ -165,7 +165,7 @@ export function registerControlTools(server: McpServer): void {
         return createToolResponse(
           success
             ? `Keystrokes "${sendText}" sent to control "${control}"`
-            : `Failed to send keystrokes to control "${control}"`
+            : `Failed to send keystrokes to control "${control}"`, !success
         );
       } catch (error) {
         log.error('controlSend failed', error);
@@ -191,7 +191,7 @@ export function registerControlTools(server: McpServer): void {
         return createToolResponse(
           success
             ? `Focus set to control "${control}"`
-            : `Failed to set focus to control "${control}"`
+            : `Failed to set focus to control "${control}"`, !success
         );
       } catch (error) {
         log.error('controlFocus failed', error);
@@ -269,7 +269,7 @@ export function registerControlTools(server: McpServer): void {
         return createToolResponse(
           success
             ? `Control "${control}" moved to (${x}, ${y})${sizeInfo}`
-            : `Failed to move control "${control}"`
+            : `Failed to move control "${control}"`, !success
         );
       } catch (error) {
         log.error('controlMove failed', error);
@@ -295,7 +295,7 @@ export function registerControlTools(server: McpServer): void {
         return createToolResponse(
           success
             ? `Control "${control}" shown`
-            : `Failed to show control "${control}"`
+            : `Failed to show control "${control}"`, !success
         );
       } catch (error) {
         log.error('controlShow failed', error);
@@ -321,7 +321,7 @@ export function registerControlTools(server: McpServer): void {
         return createToolResponse(
           success
             ? `Control "${control}" hidden`
-            : `Failed to hide control "${control}"`
+            : `Failed to hide control "${control}"`, !success
         );
       } catch (error) {
         log.error('controlHide failed', error);

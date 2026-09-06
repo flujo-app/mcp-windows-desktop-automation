@@ -27,8 +27,9 @@ export interface Rect {
 /**
  * Standard tool response creator
  */
-export function createToolResponse(message: string): CallToolResult {
+export function createToolResponse(message: string, isError = false): CallToolResult {
   return {
+    ...(isError ? { isError: true } : {}),
     content: [
       {
         type: 'text',

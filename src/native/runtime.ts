@@ -1,4 +1,4 @@
-import { fork, type ChildProcess } from 'node:child_process';
+import { spawn, type ChildProcess } from 'node:child_process';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { fileURLToPath } from 'node:url';
 import type * as AutoIt from 'node-autoit-koffi';
@@ -44,8 +44,8 @@ export class DesktopRuntime {
     if (process.platform !== 'win32' || process.arch !== 'x64')
       throw new NativeError('Native desktop operations require Windows x64 with an interactive desktop.');
     if (!this.child) {
-      const child = fork(fileURLToPath(new URL('./worker.js', import.meta.url)), [], {
-        stdio: ['ignore', 'ignore', 'ignore', 'ipc'], execArgv: ['--max-old-space-size=128'],
+      const child = spawn(process.execPath, ['--max-old-space-size=128', fileURLToPath(new URL('./worker.js', import.meta.url))], {
+        stdio: ['ignore', 'ignore', 'ignore', 'ipc'], windowsHide: true,
         // Never pass the HTTP bearer token or unrelated process credentials to native code.
         env: Object.fromEntries(Object.entries(process.env).filter(([name]) => /^(SystemRoot|WINDIR|PATH|PATHEXT|TEMP|TMP|USERPROFILE|APPDATA|LOCALAPPDATA)$/i.test(name)))
       });

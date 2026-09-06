@@ -13,5 +13,5 @@ $form.Controls.Add($text)
 $timer = New-Object System.Windows.Forms.Timer
 $timer.Interval = 100
 $timer.Add_Tick({ if (Test-Path -LiteralPath $request.stopFile) { $form.Close() } })
-$form.Add_Shown({ [Console]::Out.WriteLine('READY'); [Console]::Out.Flush(); $timer.Start() })
+$form.Add_Shown({ [Console]::Out.WriteLine('READY ' + $text.Handle.ToInt64()); [Console]::Out.Flush(); $timer.Start() })
 try { [System.Windows.Forms.Application]::Run($form) } finally { $timer.Dispose(); $form.Dispose() }
